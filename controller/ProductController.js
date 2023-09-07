@@ -19,7 +19,7 @@ class ProductController {
       const allProducts = await ProductModel.find({},{title: 1, description:1, price: 1, stock: 1, rating: 1});
         // .skip(skip)
         // .limit(limit);
-        console.log(allProducts.length);
+        
       if (allProducts.length === 0) {
         return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
       }
