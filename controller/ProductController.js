@@ -6,28 +6,113 @@ const HTTP_STATUS = require("../constants/statusCodes");
 class ProductController {
   async getAll(req, res) {
     try {
-      const page = parseInt(req.query.page) || 1; // Get the page number from the query parameter (default to 1)
-      const limit = parseInt(req.query.limit) || 10; // Get the number of items per page from the query parameter (default to 10)
-
-      // Calculate the skip value to paginate the results
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 50;
+      const sortField = req.query.sortField || 'price'; // Default sorting field is 'price'
+      const sortOrder = req.query.sortOrder || 'asc'; // Default sorting order is ascending
       const skip = (page - 1) * limit;
 
-      const query = {}; // You can add additional query conditions here if needed
-
-      const allProducts = await ProductModel.find(query, { title: 1, price: 1 })
+      const allProducts = await ProductModel.find({},{title: 1, description:1, price: 1, stock: 1, rating: 1})
         .skip(skip)
         .limit(limit);
-        if (allProducts.length === 0) {
-          return res
-            .status(HTTP_STATUS.NOT_FOUND)
-            .send(success("No products were found"));
-        }
-        return res.status(HTTP_STATUS.OK).send(success("Successfully received all products", allProducts));
-      } catch (error) {
-        console.log(error);
-        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+
+      if (allProducts.length === 0) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
       }
+
+      // Extract minPrice and maxPrice query parameters
+      const minPrice = parseFloat(req.query.minPrice);
+      const maxPrice = parseFloat(req.query.maxPrice);
+      const minStock = parseInt(req.query.minStock);
+      const maxStock = parseInt(req.query.maxStock);
+      const minRating = parseFloat(req.query.minRating);
+      const maxRating = parseFloat(req.query.maxRating);
+      const searchText = req.query.searchText || '';
+
+      // Apply filtering in memory using Array.filter()
+      const filteredProducts = allProducts.filter(product => {
+        const productPrice = parseFloat(product.price);
+        const productStock = parseFloat(product.stock);
+        const productRating = parseFloat(product.rating);
+        const PriceFilter = (!isNaN(minPrice) ? productPrice >= minPrice : true) &&
+               (!isNaN(maxPrice) ? productPrice <= maxPrice : true);
+        const StockFilter = (!isNaN(minStock) ? productStock >= minStock : true) &&
+               (!isNaN(maxStock) ? productStock <= maxStock : true);
+        const RatingFilter = (!isNaN(minRating) ? productRating >= minRating : true) &&
+               (!isNaN(maxRating) ? productRating <= maxRating : true);
+        // Apply search using regex on title and description
+        const searchRegex = new RegExp(searchText, 'i'); // 'i' flag for case-insensitive search
+        const titleMatch = searchRegex.test(product.title);
+        const descriptionMatch = searchRegex.test(product.description);
+
+        return PriceFilter && StockFilter && RatingFilter && (titleMatch || descriptionMatch);
+      });
+
+      // Sort the filtered products based on the provided sort options
+      const sortedProducts = filteredProducts.sort((a, b) => {
+        const aValue = parseFloat(a[sortField]);
+        const bValue = parseFloat(b[sortField]);
+        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+      });
+
+      const total = sortedProducts.length;
+
+      // Implement pagination for the sorted and filtered products
+      const paginatedProducts = sortedProducts.slice(skip, skip + limit);
+
+      const responseData = {
+        total,
+        countPerPage: paginatedProducts.length,
+        page,
+        limit,
+        data: paginatedProducts,
+      };
+
+      return res.status(HTTP_STATUS.OK).send(success("Successfully received all products", responseData));
+    } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+    }
   }
+
+  // async getAll(req, res) {
+  //   try {
+  //     const page = parseInt(req.query.page) || 1;
+  //     const limit = parseInt(req.query.limit) || 50; 
+  //     const sortField = req.query.sortField || 'price'; // Default sorting field is 'price'
+  //     const sortOrder = req.query.sortOrder || 'asc'; // Default sorting order is ascending
+  //     const skip = (page - 1) * limit;
+
+  //     const query = {}; 
+  //     const sortOptions = {};
+  //     sortOptions[sortField] = sortOrder === 'desc' ? -1 : 1;
+
+  //     const allProducts = await ProductModel.find(query, { title: 1, price: 1, stock:1, rating:1})
+  //       .skip(skip)
+  //       .limit(limit)
+  //       .sort(sortOptions); // Apply sorting based on user input;
+
+  //       if (allProducts.length === 0) {
+  //         return res
+  //           .status(HTTP_STATUS.NOT_FOUND)
+  //           .send(success("No products were found"));
+  //       }
+
+  //     const total = await ProductModel.countDocuments(query);
+
+  //     const responseData = {
+  //       total,
+  //       countPerPage: allProducts.length,
+  //       page,
+  //       limit,
+  //       data: allProducts,
+  //     };
+  //       return res.status(HTTP_STATUS.OK).send(success("Successfully received all products", responseData));
+  //     } catch (error) {
+  //       console.log(error);
+  //       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+  //     }
+  // }
 
   async create(req, res){
     try {

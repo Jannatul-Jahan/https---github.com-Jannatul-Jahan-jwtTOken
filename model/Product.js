@@ -10,24 +10,24 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Number,
   },
-  // rating: {
-  //   type: Number,
-  // },
-  // discountPercentage: {
-  //   type: Number,
-  // },
-  // stock: {
-  //   type: Number,
-  // },
-  // brand: {
-  //   type: String,
-  // },
-  // category: {
-  //   type: String,
-  // },
-  // thumbnail: {
-  //   type: String,
-  // },
+  rating: {
+    type: Number,
+  },
+  discountPercentage: {
+    type: Number,
+  },
+  stock: {
+    type: Number,
+  },
+  brand: {
+    type: String,
+  },
+  category: {
+    type: String,
+  },
+  thumbnail: {
+    type: String,
+  },
 });
 
 const Product = mongoose.model("Newproduct", productSchema);
