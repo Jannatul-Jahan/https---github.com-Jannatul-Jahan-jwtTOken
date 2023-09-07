@@ -50,7 +50,7 @@ class ProductController {
         return PriceFilter && StockFilter && RatingFilter && (titleMatch || descriptionMatch);
       });
 
-      // Sort the filtered products based on the provided sort options
+      
       const sortedProducts = filteredProducts.sort((a, b) => {
         const aValue = parseFloat(a[sortField]);
         const bValue = parseFloat(b[sortField]);
@@ -59,7 +59,6 @@ class ProductController {
 
       const total = sortedProducts.length;
 
-      // Implement pagination for the sorted and filtered products
       const paginatedProducts = sortedProducts.slice(skip, skip + limit);
 
       const responseData = {
