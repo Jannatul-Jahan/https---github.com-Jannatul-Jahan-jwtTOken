@@ -15,11 +15,11 @@ class ProductController {
       if (sortOrder !== 'asc' && sortOrder !== 'desc') {
         return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid query: Please use 'asc' or 'desc' for sorting order"));
       }
-
+      
       const allProducts = await ProductModel.find({},{title: 1, description:1, price: 1, stock: 1, rating: 1})
         .skip(skip)
         .limit(limit);
-
+        console.log(allProducts.length);
       if (allProducts.length === 0) {
         return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
       }
@@ -59,8 +59,8 @@ class ProductController {
 
       const total = sortedProducts.length;
 
-      const paginatedProducts = sortedProducts.slice(skip, skip + limit);
-
+      // const paginatedProducts = sortedProducts.slice(skip, skip + limit);
+      const paginatedProducts = sortedProducts;
       const responseData = {
         total,
         countPerPage: paginatedProducts.length,
