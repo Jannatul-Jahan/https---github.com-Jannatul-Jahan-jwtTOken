@@ -8,9 +8,13 @@ class ProductController {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 50;
-      const sortField = req.query.sortField || 'price'; // Default sorting field is 'price'
-      const sortOrder = req.query.sortOrder || 'asc'; // Default sorting order is ascending
+      const sortField = req.query.sortField || 'price'; 
+      const sortOrder = req.query.sortOrder || 'asc'; 
       const skip = (page - 1) * limit;
+
+      if (sortOrder !== 'asc' && sortOrder !== 'desc') {
+        return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid query: Please use 'asc' or 'desc' for sorting order"));
+      }
 
       const allProducts = await ProductModel.find({},{title: 1, description:1, price: 1, stock: 1, rating: 1})
         .skip(skip)
@@ -20,7 +24,6 @@ class ProductController {
         return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
       }
 
-      // Extract minPrice and maxPrice query parameters
       const minPrice = parseFloat(req.query.minPrice);
       const maxPrice = parseFloat(req.query.maxPrice);
       const minStock = parseInt(req.query.minStock);
@@ -29,10 +32,9 @@ class ProductController {
       const maxRating = parseFloat(req.query.maxRating);
       const searchText = req.query.searchText || '';
 
-      // Apply filtering in memory using Array.filter()
       const filteredProducts = allProducts.filter(product => {
         const productPrice = parseFloat(product.price);
-        const productStock = parseFloat(product.stock);
+        const productStock = parseInt(product.stock);
         const productRating = parseFloat(product.rating);
         const PriceFilter = (!isNaN(minPrice) ? productPrice >= minPrice : true) &&
                (!isNaN(maxPrice) ? productPrice <= maxPrice : true);
@@ -40,8 +42,8 @@ class ProductController {
                (!isNaN(maxStock) ? productStock <= maxStock : true);
         const RatingFilter = (!isNaN(minRating) ? productRating >= minRating : true) &&
                (!isNaN(maxRating) ? productRating <= maxRating : true);
-        // Apply search using regex on title and description
-        const searchRegex = new RegExp(searchText, 'i'); // 'i' flag for case-insensitive search
+        
+        const searchRegex = new RegExp(searchText, 'i'); 
         const titleMatch = searchRegex.test(product.title);
         const descriptionMatch = searchRegex.test(product.description);
 
