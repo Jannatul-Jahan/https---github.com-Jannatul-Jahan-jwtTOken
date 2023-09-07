@@ -1,2 +1,2 @@
 # jwtTOken
-Connecting REST API with JWTToken
+Connecting REST API with JWTToken, perform pagination and searching
