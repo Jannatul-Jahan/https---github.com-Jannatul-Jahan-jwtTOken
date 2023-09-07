@@ -62,7 +62,7 @@ class ProductController {
       const finalData = sortedProducts;
       const responseData = {
         total,
-        countPerPage: paginatedProducts.length,
+        countPerPage: finalData.length,
         page,
         limit,
         data: finalData,
