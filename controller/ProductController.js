@@ -59,14 +59,13 @@ class ProductController {
 
       const total = sortedProducts.length;
 
-      // const paginatedProducts = sortedProducts.slice(skip, skip + limit);
-      const paginatedProducts = sortedProducts;
+      const finalData = sortedProducts;
       const responseData = {
         total,
         countPerPage: paginatedProducts.length,
         page,
         limit,
-        data: paginatedProducts,
+        data: finalData,
       };
 
       return res.status(HTTP_STATUS.OK).send(success("Successfully received all products", responseData));
