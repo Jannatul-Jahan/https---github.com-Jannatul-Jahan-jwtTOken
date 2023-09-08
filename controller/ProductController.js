@@ -50,7 +50,7 @@ class ProductController {
         const productPrice = parseFloat(product.price);
         const productStock = parseInt(product.stock);
         const productRating = parseFloat(product.rating);
-        
+
         const PriceFilter = (minPrice ? productPrice >= minPrice : true) &&
           (maxPrice ? productPrice <= maxPrice : true);
         const StockFilter = (minStock ? productStock >= minStock : true) &&
