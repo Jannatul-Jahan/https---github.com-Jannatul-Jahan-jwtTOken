@@ -28,6 +28,20 @@ const userValidator = {
   ],
 };
 
+
+const cartValidator = {
+  addItemToCart: [
+    body("user")
+      .exists()
+      .withMessage("UserId was not provided"),
+    body("products")
+      .exists()
+      .withMessage("Product was not provided"),
+  ],
+};
+
+
+
 const authValidator = {
   signup:[
     body("email")
@@ -77,4 +91,4 @@ const authValidator = {
 
 
 
-module.exports = { userValidator, authValidator };
+module.exports = { userValidator, authValidator, cartValidator };
