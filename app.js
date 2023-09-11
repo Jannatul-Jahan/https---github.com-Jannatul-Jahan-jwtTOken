@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 // const UserRouter = require("./routes/User");
-// const ProductRouter = require("./routes/Product");
+const ProductRouter = require("./routes/Product");
 const TransactionRouter = require("./routes/Transaction");
 const CartRouter = require("./routes/Cart");
 // const AuthRouter = require("./routes/Auth");
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.text()); 
 app.use(express.urlencoded({ extended: true })); 
 
-// app.use("/products", ProductRouter);
+app.use("/products", ProductRouter);
 // app.use("/users", UserRouter);
 app.use("/transactions", TransactionRouter);
 app.use("/cart", CartRouter);

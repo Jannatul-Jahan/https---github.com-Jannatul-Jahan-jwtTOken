@@ -28,6 +28,26 @@ const productSchema = new mongoose.Schema({
   thumbnail: {
     type: String,
   },
+  reviews: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', 
+      },
+      rating: {
+        type: Number,
+        required: true,
+      },
+      comment: {
+        type: String,
+        required: true,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 const Product = mongoose.model("Product", productSchema);

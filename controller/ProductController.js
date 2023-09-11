@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const { success, failure } = require("../util/common");
 const ProductModel = require("../model/Product");
+const UserModel = require("../model/User");
 const HTTP_STATUS = require("../constants/statusCodes");
 
 class ProductController {
@@ -224,6 +225,53 @@ class ProductController {
       }
 
   }
+  
+  async addReview(req, res) {
+    try {
+      const { user, rating, comment } = req.body; 
+      const productId = req.params.productId; 
+      const product = await ProductModel.findById(productId);
+  
+      if (!product) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(failure('Product not found'));
+      }
+  
+      const newReview = {
+        user: user, 
+        rating,
+        comment,
+      };
+  
+      product.reviews.push(newReview);
+      await product.save();
+  
+      return res.status(HTTP_STATUS.CREATED).send(success('Review added successfully'));
+    } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure('Internal server error'));
+    }
+  }
+  
+  async getAllReviews(req, res) {
+    try {
+      const productId = req.params.productId;
+  
+      const product = await ProductModel.findById(productId)
+        .populate("reviews.user");  
+  
+      if (!product) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(failure('Product not found'));
+      }
+  
+      const reviews = product.reviews;
+  
+      return res.status(HTTP_STATUS.OK).send(success('Reviews retrieved successfully', reviews));
+    } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure('Internal server error'));
+    }
+  }
+  
 }
 
 module.exports = new ProductController();
